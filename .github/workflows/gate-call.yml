@@ -10,7 +10,7 @@ permissions: {}
 jobs:
   pr-gate:
     permissions:
-      contents: read
+      contents: write
       pull-requests: write
       security-events: write
       checks: write
