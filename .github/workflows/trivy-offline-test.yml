@@ -1,0 +1,52 @@
+name: trivy-offline-test
+
+# Throwaway experiment (sandbox only): does TRIVY_OFFLINE_SCAN stop the pom.xml remote-repository
+# hang seen in inji/vc-verifier#313, and what does it cost in findings?
+on:
+  push:
+    branches: [trivy-offline-test]
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    name: ${{ matrix.fixture }} / ${{ matrix.mode }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        fixture: [unreachable, transitive]
+        mode: [default, offline]
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+
+      - name: Trivy fs
+        id: scan
+        continue-on-error: true
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25  # v0.36.0
+        env:
+          TRIVY_OFFLINE_SCAN: ${{ matrix.mode == 'offline' && 'true' || 'false' }}
+        with:
+          scan-type: fs
+          scanners: vuln
+          timeout: 90s
+          scan-ref: ${{ matrix.fixture }}
+          exit-code: '0'
+          format: json
+          output: out.json
+
+      - name: Summary
+        if: always()
+        env:
+          OUTCOME: ${{ steps.scan.outcome }}
+          FIXTURE: ${{ matrix.fixture }}
+          MODE: ${{ matrix.mode }}
+        run: |
+          echo "RESULT fixture=$FIXTURE mode=$MODE scan_step=$OUTCOME"
+          if [ -s out.json ] && jq empty out.json 2>/dev/null; then
+            echo "RESULT vulns_total=$(jq '[.Results[]?.Vulnerabilities[]?] | length' out.json)"
+            echo "RESULT packages=$(jq -c '[.Results[]?.Vulnerabilities[]? | .PkgName] | unique' out.json)"
+          else
+            echo "RESULT no readable report"
+          fi
