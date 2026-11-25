@@ -1,0 +1,20 @@
+name: gate-call
+
+# Sandbox only: calls the vendored copy of the fixed pr-gate.yml to check the Trivy FS
+# Maven-repository probe end to end (diff mode, so the base tree is scanned too).
+on:
+  pull_request:
+
+permissions: {}
+
+jobs:
+  pr-gate:
+    permissions:
+      contents: read
+      pull-requests: write
+      security-events: write
+      checks: write
+    uses: ./.github/workflows/pr-gate.yml
+    with:
+      SERVICE_LOCATION: '.'
+      trivy_comment_mode: 'diff'
