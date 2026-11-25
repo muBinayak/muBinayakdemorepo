@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>test</groupId>
+  <artifactId>connection-refused</artifactId>
+  <version>1.0</version>
+
+  <!-- Nothing listens on this port: the connection is refused immediately. -->
+  <repositories>
+    <repository>
+      <id>refused</id>
+      <url>http://127.0.0.1:9/maven-public/</url>
+    </repository>
+  </repositories>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.github.multiformats</groupId>
+      <artifactId>java-multibase</artifactId>
+      <version>v1.1.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+      <version>2.14.1</version>
+    </dependency>
+  </dependencies>
+</project>
